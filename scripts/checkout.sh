@@ -5,8 +5,11 @@
 TOPDIR="$(realpath $(dirname $0)/../../)"
 CHECKOUT=yes
 PULL=no
+LINUX_TARGET=yes
+FREEBSD_TARGET=yes
 TOOLCHAIN_OVERRIDE=""
 CHERIBUILD_OVERRIDE=""
+MORELLO_SDK_OVERRIDE=""
 RUST_OVERRIDE=""
 RETVAL=0
 
@@ -34,6 +37,9 @@ for opt in ${@}; do
   --cheribuild-branch=*)
     CHERIBUILD_OVERRIDE="${opt#*=}"
     ;;
+  --morello-sdk-branch=*)
+    MORELLO_SDK_OVERRIDE="${opt#*=}"
+    ;;
   --rust-branch=*)
     RUST_OVERRIDE="${opt#*=}"
     ;;
@@ -46,8 +52,13 @@ for opt in ${@}; do
     echo "  --no-checkout                Don't run git checkout on branch."
     echo "  --pull                       Run git pull on branch."
     echo "  --no-pull                    Don't run git pull on branch. [Default]"
+    echo "  --linux                      Assume we're building a toolchain for Morello Linux [Default]"
+    echo "  --no-linux                   Assume we're not building a toolchain for Morello Linux"
+    echo "  --freebsd                    Assume we're building a toolchain for Morello FreeBSD [Default]"
+    echo "  --no-freebsd                 Assume we're not building a toolchain for Morello FreeBSD"
     echo "  --toolchain-branch=<branch>  Use <branch> for the toolchain repository"
     echo "  --cheribuild-branch=<branch> Use <branch> for the cheribuild repository"
+    echo "  --morello-sdk-branch=<branch> Use <branch> for the morello-sdk repository"
     echo "  --rust-branch=<branch>       Use <branch> for the rust repository"
     echo "  --help                       Present this message."
     exit $valid_arg
@@ -91,10 +102,18 @@ fi
 processBranch toolchain ${EXPECTED_TOOLCHAIN}
 
 source "${TOPDIR}/toolchain/scripts/EXPECTED_BRANCHES"
+if [ -n "${MORELLO_SDK_OVERRIDE}" ]; then
+  EXPECTED_MORELLO_SDK=${MORELLO_SDK_OVERRIDE}
+fi
+if [ "${LINUX_TARGET}" == "yes" ]; then
+  processBranch morello-sdk ${EXPECTED_MORELLO_SDK}
+fi
 if [ -n "${CHERIBUILD_OVERRIDE}" ]; then
   EXPECTED_CHERIBUILD=${CHERIBUILD_OVERRIDE}
 fi
-processBranch cheribuild ${EXPECTED_CHERIBUILD}
+if [ "${FREEBSD_TARGET}" == "yes" ]; then
+  processBranch cheribuild ${EXPECTED_CHERIBUILD}
+fi
 if [ -n "${RUST_OVERRIDE}" ]; then
   EXPECTED_RUST=${RUST_OVERRIDE}
 fi

@@ -1,5 +1,6 @@
 properties([parameters([
     string(defaultValue: 'main', description: 'Toolchain Branch Name', name: 'ToolchainBranchName'),
+    string(defaultValue: 'ljr-latest', description: 'Morello SDK Branch Name', name: 'MorelloSDKBranchName'),
     string(defaultValue: 'main', description: 'Cheribuild Branch Name', name: 'CheribuildBranchName'),
     string(defaultValue: 'rust-cheri-1.67.0', description: 'Rust Branch Name', name: 'RustBranchName'),
     booleanParam(defaultValue: false, description: 'Archive a Copy of the Built Toolchain', name: 'ArchiveToolchain'),
@@ -28,6 +29,7 @@ node('builder') {
         sh script: '''./scripts/clone.sh'''
         sh script: '''./scripts/checkout.sh \
                       --toolchain-branch=${ToolchainBranchName} \
+                      --morello-sdk-branch=${MorelloSDKBranchName} \
                       --cheribuild-branch=${CheribuildBranchName} \
                       --rust-branch=${RustBranchName}'''
       }
